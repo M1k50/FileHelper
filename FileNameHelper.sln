@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileHelper", "FileHelper\FileHelper.csproj", "{66AB740B-DCB1-41B9-9ACE-66FC5770E2DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameHelper", "FileHelper\FileNameHelper.csproj", "{66AB740B-DCB1-41B9-9ACE-66FC5770E2DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileHelper.Tests", "FileHelper.Tests\FileHelper.Tests.csproj", "{0CF207FF-1B24-447D-AD2F-34BA994EFC7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameHelper.Tests", "FileHelper.Tests\FileNameHelper.Tests.csproj", "{0CF207FF-1B24-447D-AD2F-34BA994EFC7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
