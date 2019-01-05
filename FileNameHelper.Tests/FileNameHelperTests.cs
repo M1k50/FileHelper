@@ -1,5 +1,6 @@
 using Xunit;
 
+
 namespace FileNameHelper.Tests
 {
     public class FileNameHelperTests
@@ -14,8 +15,8 @@ namespace FileNameHelper.Tests
             string expectedWorkingDir = "./";
 
             //Act
-            string actualFilename = helper.GetFilename();
-            string actualFilepath = helper.G;
+            string actualFilename = helper.Filename;
+            string actualFilepath = helper.Filepath;
             string actualWorkingDir = helper.WorkingDirectory;
 
             //Assert
@@ -28,11 +29,11 @@ namespace FileNameHelper.Tests
         {
             string filename = "Testname.txt";
             string dir = "c:/temp/";
-            bool createBool = false;
+            bool createDir = false;
             int counterMax = 999;
             string counterFormat = "000";
 
-            FileNameHelper nameHelper = new FileNameHelper(filename, dir, createBool, counterMax, counterFormat);
+            FileNameHelper nameHelper = new FileNameHelper(filename, dir, createDir, counterMax, counterFormat);
 
             return nameHelper;
         }
@@ -43,7 +44,7 @@ namespace FileNameHelper.Tests
             IFileNameHelper helper = TestFileHelper();
 
             //Arrange
-            string expectedFilename = "Testname";
+            string expectedFilename = "Testname.txt";
 
             //Act
             string actualFilename = helper.Filename;
@@ -58,7 +59,7 @@ namespace FileNameHelper.Tests
             IFileNameHelper helper = TestFileHelper();
 
             //Arrange
-            string expectedFilepath = "c:/temp/";
+            string expectedFilepath = "c:/temp/Testname.txt";
 
             //Act
             string actualFilepath = helper.Filepath;

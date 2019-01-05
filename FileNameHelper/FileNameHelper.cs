@@ -6,11 +6,16 @@ namespace FileNameHelper
     /// <summary>
     /// 
     /// </summary>
-    public class FileNameHelper
+    public class FileNameHelper : IFileNameHelper
     {
         private int _counter;
         private string _counterFormat = "00";
         private int _counterMax = 1000;
+
+        /// <summary>
+        /// Determines wether a passed directory is created if it does not exist yet.
+        /// </summary>
+        private bool _createMissingDirectory = false;
 
         /// <summary>
         /// Output filename extension.
@@ -35,13 +40,13 @@ namespace FileNameHelper
         /// <param name="counterFormat"></param>
         public FileNameHelper(string filename ="output.csv", string workingDirectory="./", bool createMissingDirectory = true,int counterMax = 1000, string counterFormat="00")
         {
-            SetFilename(filename);
-            WorkingDirectory = workingDirectory;
             _createMissingDirectory = createMissingDirectory;
             _counterMax = counterMax;
             _counterFormat = counterFormat;
 
-            GetFilename();
+            WorkingDirectory = workingDirectory;
+            Filename =filename;
+            
         }
 
         /// <summary>
@@ -52,16 +57,7 @@ namespace FileNameHelper
             
         }
 
-        public string WorkingDirectory
-        {
-            get { return _workingDirectory; }
-            set { _workingDirectory = GetDirectory(value, _createMissingDirectory); }
-        }
-
-        /// <summary>
-        /// Determines wether a passed directory is created if it does not exist yet.
-        /// </summary>
-        private bool _createMissingDirectory { get; set; } = true;
+        #region Inteface
 
         /// <summary>
         /// The internal method checks if a filename exists.
@@ -71,56 +67,64 @@ namespace FileNameHelper
         /// <param name="filename"></param>
         /// <param name="workingDirectory"></param>
         /// <returns></returns>
-        public string GetFilename()
+        public string Filename
         {
-            SetAvailableFilename();
-
-            string output = Filename();
-            return output;
-        }
-
-        public string GetFilepath()
-        {
-            SetAvailableFilename();
-
-            string output = Filepath();
-            return output;
-        }
-
-        public void SetFilename(string name)
-        {
-            string filename = Path.GetFileNameWithoutExtension(name);
-            string extension = Path.GetExtension(name);
-
-            _filename = filename;
-            _fileExtension = extension;
-
-        }
-
-        private bool FileExists(string filepath)
-        {
-            return File.Exists(filepath);
-        }
-
-        private string Filename()
-        {
-            if (_counter == 0)
+            get
             {
-                return _filename + _fileExtension;
+                SetAvailableFilename();
+
+                string output = AssembleFilename();
+                return output;
             }
-            return _filename + string.Format(_counterFormat, _counter) + _fileExtension;
+            set
+            {
+                string filename = Path.GetFileNameWithoutExtension(value);
+                string extension = Path.GetExtension(value);
+
+                _filename = filename;
+                _fileExtension = extension;
+            }
         }
 
         /// <summary>
         /// Full output filepath with filename and extension.
         /// e.g. "c:\temp\dummy.csv"
         /// </summary>
-        private string Filepath()
+        public string Filepath
         {
-            string filename = Filename();
-            return _workingDirectory + filename;
+            get
+            {
+                string filename = AssembleFilename();
+                return _workingDirectory + filename;
+            }
         }
 
+        public string WorkingDirectory
+        {
+            get { return _workingDirectory; }
+            set { _workingDirectory = GetDirectory(value, _createMissingDirectory); }
+        }
+
+        #endregion
+
+        #region Calculations
+
+        private string AssembleFilename()
+        {
+            string output;
+            if (_counter == 0)
+            {
+                output = _filename + _fileExtension;
+                return output;
+            }
+            output = $"{_filename}_" + string.Format(_counterFormat, _counter) + _fileExtension;
+            return output;
+        }
+
+        private bool FileExists(string filepath)
+        {
+            return File.Exists(filepath);
+        }
         /// <summary>
         /// If'target' directory exists, the name gets returned.
         /// If the createIfMissing argument it true a missing directory will be created.
@@ -146,21 +150,21 @@ namespace FileNameHelper
                 return output;
             }
 
-            throw new ArgumentException("Specified Directory does not exist");
+            throw new ArgumentException("Specified directory does not exist");
         }
 
-        private void SetAvailableFilename()
+        private string SetAvailableFilename()
         {
-            string filepath;
+            string output;
             int counterStart = _counter;
             int loopTerminator = 0;
 
             while (loopTerminator == 0)
             {
-                filepath = Filepath();
-                if (!FileExists(filepath))
+                output = Filepath;
+                if (!FileExists(output))
                 {
-                    break;
+                    return output;
                 }
                 _counter++;
 
@@ -171,9 +175,13 @@ namespace FileNameHelper
 
                 if (counterStart == _counter)
                 {
-                    throw new Exception(string.Format("Max counter value exceeded {0}, no free filename found.", _counterMax));
+                    loopTerminator ++;
                 }
             }
+            throw new Exception(string.Format("Max counter value exceeded {0}, no free filename found.", _counterMax));
+
         }
+
+        #endregion
     }
 }
