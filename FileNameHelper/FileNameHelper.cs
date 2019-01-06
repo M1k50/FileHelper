@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace FileNameHelper
 {
@@ -8,27 +8,29 @@ namespace FileNameHelper
     /// </summary>
     public class FileNameHelper : IFileNameHelper
     {
+        private IFileSystem _fileSystem;
+
         private int _counter;
-        private string _counterFormat = "00";
-        private int _counterMax = 1000;
+        private string _counterFormat="00";
+        private int _counterMax=1000;
 
         /// <summary>
         /// Determines wether a passed directory is created if it does not exist yet.
         /// </summary>
-        private bool _createMissingDirectory = false;
+        private bool _createMissingDirectory=false;
 
         /// <summary>
         /// Output filename extension.
         /// e.g. ".csv"
         /// </summary>
-        private string _fileExtension = ".csv";
+        private string _fileExtension=".csv";
 
         /// <summary>
         /// Name of the output filename.
         /// </summary>
-        private string _filename = "output";
+        private string _filename="output";
 
-        private string _workingDirectory = "./";
+        private string _workingDirectory="./";
 
         /// <summary>
         /// Constructor setting all necessary properties to be able to retrieve a new filename without needing argruments.
@@ -38,14 +40,28 @@ namespace FileNameHelper
         /// <param name="createMissingDirectory"></param>
         /// <param name="counterMax"></param>
         /// <param name="counterFormat"></param>
-        public FileNameHelper(string filename ="output.csv", string workingDirectory="./", bool createMissingDirectory = true,int counterMax = 1000, string counterFormat="00")
+        /// <param name="fileSystem"></param>
+        public FileNameHelper(string filename ="output.csv", string workingDirectory="./",
+            bool createMissingDirectory = false,
+            int counterMax = 1000,
+            string counterFormat="00",
+            IFileSystem fileSystem = null)
         {
+            if (fileSystem == null)
+            {
+                _fileSystem = new FileSystem();
+            }
+            else
+            {
+                _fileSystem = fileSystem;
+            }
+
             _createMissingDirectory = createMissingDirectory;
             _counterMax = counterMax;
             _counterFormat = counterFormat;
 
             WorkingDirectory = workingDirectory;
-            Filename =filename;
+            Filename = filename;
             
         }
 
@@ -54,7 +70,7 @@ namespace FileNameHelper
         /// </summary>
         public FileNameHelper()
         {
-            
+            _fileSystem = new FileSystem();
         }
 
         #region Inteface
@@ -78,8 +94,8 @@ namespace FileNameHelper
             }
             set
             {
-                string filename = Path.GetFileNameWithoutExtension(value);
-                string extension = Path.GetExtension(value);
+                string filename = _fileSystem.Path.GetFileNameWithoutExtension(value);
+                string extension = _fileSystem.Path.GetExtension(value);
 
                 _filename = filename;
                 _fileExtension = extension;
@@ -94,8 +110,8 @@ namespace FileNameHelper
         {
             get
             {
-                string filename = AssembleFilename();
-                return _workingDirectory + filename;
+                string output = AssembleFilepath();
+                return output;
             }
         }
 
@@ -108,6 +124,13 @@ namespace FileNameHelper
         #endregion
 
         #region Calculations
+
+        private string AssembleFilepath()
+        {
+            string output = _workingDirectory + AssembleFilename();
+            return output;
+
+        }
 
         private string AssembleFilename()
         {
@@ -123,7 +146,7 @@ namespace FileNameHelper
 
         private bool FileExists(string filepath)
         {
-            return File.Exists(filepath);
+            return _fileSystem.File.Exists(filepath);
         }
         /// <summary>
         /// If'target' directory exists, the name gets returned.
@@ -136,7 +159,7 @@ namespace FileNameHelper
         private string GetDirectory(string target, bool createIfMissing)
         {
             string output;
-            bool dirExists = Directory.Exists(target);
+            bool dirExists = _fileSystem.Directory.Exists(target);
             if (dirExists)
             {
                 output = target;
@@ -145,7 +168,7 @@ namespace FileNameHelper
 
             if (createIfMissing)
             {
-                Directory.CreateDirectory(target);
+                _fileSystem.Directory.CreateDirectory(target);
                 output = target;
                 return output;
             }

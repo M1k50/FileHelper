@@ -1,5 +1,9 @@
 using Xunit;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 
+// http://www.borismod.net/2015/08/how-to-mock-file-system-in-tests.html
 
 namespace FileNameHelper.Tests
 {
@@ -25,25 +29,12 @@ namespace FileNameHelper.Tests
             Assert.Equal(expectedWorkingDir,actualWorkingDir);
         }
 
-        public IFileNameHelper TestFileHelper()
-        {
-            string filename = "Testname.txt";
-            string dir = "c:/temp/";
-            bool createDir = false;
-            int counterMax = 999;
-            string counterFormat = "000";
-
-            FileNameHelper nameHelper = new FileNameHelper(filename, dir, createDir, counterMax, counterFormat);
-
-            return nameHelper;
-        }
-
         [Fact]
         public void ConstructorWithArguments_FilenameOk()
         {
-            IFileNameHelper helper = TestFileHelper();
-
             //Arrange
+            string name = "Testname.txt";
+            IFileNameHelper helper = new FileNameHelper(filename: name);
             string expectedFilename = "Testname.txt";
 
             //Act
@@ -56,9 +47,18 @@ namespace FileNameHelper.Tests
         [Fact]
         public void ConstructorWithArguments_Filepath()
         {
-            IFileNameHelper helper = TestFileHelper();
-
             //Arrange
+            IFileSystem mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                {@"c:\temp\",new MockDirectoryData()},
+                {@"c:\temp\Testname.txt",new MockFileData("dummy") }
+            });
+
+            string name = "Testname.txt";
+            string path = "c:/temp/";
+            IFileNameHelper helper = new FileNameHelper(filename: name, workingDirectory:path,createMissingDirectory:false,fileSystem: mockFileSystem);
+
+
             string expectedFilepath = "c:/temp/Testname.txt";
 
             //Act
