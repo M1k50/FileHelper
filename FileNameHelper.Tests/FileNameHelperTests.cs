@@ -45,7 +45,7 @@ namespace FileNameHelper.Tests
         }
 
         [Fact]
-        public void ConstructorWithArguments_Filepath()
+        public void ConstructorWithArguments_FilepathOK()
         {
             //Arrange
             IFileSystem mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
