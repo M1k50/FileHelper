@@ -1,4 +1,5 @@
 using Xunit;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -19,9 +20,9 @@ namespace FileNameHelper.Tests
             string expectedWorkingDir = "./";
 
             //Act
-            string actualFilename = helper.Filename;
+            string actualFilename = helper.FullFilename;
             string actualFilepath = helper.Filepath;
-            string actualWorkingDir = helper.WorkingDirectory;
+            string actualWorkingDir = helper.Directory;
 
             //Assert
             Assert.Equal(expectedFilename,actualFilename);
@@ -30,22 +31,95 @@ namespace FileNameHelper.Tests
         }
 
         [Fact]
-        public void ConstructorWithArguments_FilenameOk()
+        public void ConstructorFullFilenameSet_Ok()
         {
             //Arrange
-            string name = "Testname.txt";
-            IFileNameHelper helper = new FileNameHelper(filename: name);
+            string path = @".\Testname.txt";
+            IFileNameHelper helper = new FileNameHelper(filepath: path);
             string expectedFilename = "Testname.txt";
 
             //Act
-            string actualFilename = helper.Filename;
+            string actualFilename = helper.FullFilename;
 
             //Assert
             Assert.Equal(expectedFilename, actualFilename);
         }
 
         [Fact]
-        public void ConstructorWithArguments_Filepath()
+        public void FullFilenameSet_MissingExtensionDefaultsToStandard()
+        {
+            //Arrange
+            IFileNameHelper helper = new FileNameHelper();
+            helper.FullFilename = @".\Testname";
+            string expectedFullFilename = "Testname.csv";
+
+            //Act
+            string actualFilename = helper.FullFilename;
+
+            //Assert
+            Assert.Equal(expectedFullFilename, actualFilename);
+        }
+
+        [Fact]
+        public void FullFilenameSet_WrongExtensionDefaultsToStandard()
+        {
+            //Arrange
+            IFileNameHelper helper = new FileNameHelper();
+            helper.FullFilename = @".\Testname.";
+            string expectedFullFilename = "Testname.csv";
+
+            //Act
+            string actualFilename = helper.FullFilename;
+
+            //Assert
+            Assert.Equal(expectedFullFilename, actualFilename);
+        }
+
+        [Fact]
+        public void ConstructorFilenameSet_Ok()
+        {
+            //Arrange
+            string path = @".\Testname.txt";
+            IFileNameHelper helper = new FileNameHelper(filepath: path);
+            string expectedFilename = "Testname";
+
+            //Act
+            string actualFilename1 = helper.Filename;
+            helper.Filename = "Testname.";
+            string actualFilename2 = helper.Filename;
+
+
+            //Assert
+            Assert.Equal(expectedFilename, actualFilename1);
+            Assert.Equal(expectedFilename, actualFilename2);
+
+        }
+
+        [Fact]
+        public void ConstructorFilepathSet_Ok()
+        {
+            //Arrange
+            IFileSystem mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                {@"c:\temp\",new MockDirectoryData()},
+            });
+            string path = @"c:\temp\Testname.txt";
+            IFileNameHelper helper = new FileNameHelper(filepath: path, createMissingDirectory:false,fileSystem: mockFileSystem);
+
+            string expectedFilepath = @"c:\temp\Testname.txt";
+
+            //Act
+            string actualFilepath = helper.Filepath;
+
+            //Assert
+            Assert.Equal(expectedFilepath, actualFilepath);
+        }
+
+        [Theory]
+        [InlineData(@"c:\temp\Testname_01.txt","D2")]
+        [InlineData(@"c:\temp\Testname_0001.txt", "D4")]
+
+        public void FilnameSet_ExistingFilenameOk(string expectedFilepath,string format)
         {
             //Arrange
             IFileSystem mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
@@ -53,19 +127,69 @@ namespace FileNameHelper.Tests
                 {@"c:\temp\",new MockDirectoryData()},
                 {@"c:\temp\Testname.txt",new MockFileData("dummy") }
             });
-
-            string name = "Testname.txt";
-            string path = "c:/temp/";
-            IFileNameHelper helper = new FileNameHelper(filename: name, workingDirectory:path,createMissingDirectory:false,fileSystem: mockFileSystem);
-
-
-            string expectedFilepath = "c:/temp/Testname.txt";
+            string path = @"c:\temp\Testname.txt";
+            IFileNameHelper helper = new FileNameHelper(filepath: path, createMissingDirectory: false, fileSystem: mockFileSystem,counterFormat: format);
 
             //Act
             string actualFilepath = helper.Filepath;
 
             //Assert
             Assert.Equal(expectedFilepath, actualFilepath);
+        }
+
+        [Fact]
+        public void FilepathSet_NoAvailableName_ThrowsException()
+        {
+            //Arrange
+            IFileSystem mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                {@"c:\temp\",new MockDirectoryData()},
+                {@"c:\temp\Testname.txt",new MockFileData("dummy") },
+                {@"c:\temp\Testname_01.txt",new MockFileData("dummy") },
+                {@"c:\temp\Testname_02.txt",new MockFileData("dummy") },
+                {@"c:\temp\Testname_03.txt",new MockFileData("dummy") }
+            });
+            string path = @"c:\temp\Testname.txt";
+            int maxCounter = 3;
+            IFileNameHelper helper = new FileNameHelper(filepath: path,
+                fileSystem: mockFileSystem,
+                counterMax: maxCounter);
+
+
+            //Assert
+            Assert.Throws<Exception>(() => helper.Filename);
+        }
+
+        [Fact]
+        public void FilepathSet_CounterCylcesThrowFullRange()
+        {
+            //Arrange
+            IFileSystem mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                {@"c:\temp\",new MockDirectoryData()},
+                {@"c:\temp\Testname.txt",new MockFileData("dummy") },
+                {@"c:\temp\Testname_01.txt",new MockFileData("dummy") },
+                {@"c:\temp\Testname_02.txt",new MockFileData("dummy") },
+                {@"c:\temp\Testname_03.txt",new MockFileData("dummy") }
+            });
+            string path = @"c:\temp\Testname.txt";
+
+            IFileNameHelper helper = new FileNameHelper(filepath: path,fileSystem: mockFileSystem);
+
+            string expectedFilepath1 = @"c:\temp\Testname_04.txt";
+            string expectedFilepath2 = @"c:\temp\Testname_05.txt";
+
+            //Act
+            string actualFilepath1 = helper.Filepath;
+            mockFileSystem.File.Create(@"c:\temp\Testname_04.txt");
+            mockFileSystem.File.Delete(@"c:\temp\Testname_02.txt");
+            string actualFilepath2 = helper.Filepath;
+
+
+            //Assert
+            Assert.Equal(expectedFilepath1, actualFilepath1);
+            Assert.Equal(expectedFilepath2, actualFilepath2);
+
         }
 
     }
