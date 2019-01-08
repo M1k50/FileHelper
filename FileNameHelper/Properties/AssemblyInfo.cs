@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FileHelper.Tests")]
+[assembly: AssemblyTitle("FileNameHelper")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("FileHelper.Tests")]
+[assembly: AssemblyProduct("FileNameHelper")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("0cf207ff-1b24-447d-ad2f-34ba994efc7c")]
+[assembly: Guid("66ab740b-dcb1-41b9-9ace-66fc5770e2df")]
 
 // Version information for an assembly consists of the following four values:
 //
