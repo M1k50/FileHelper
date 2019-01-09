@@ -34,8 +34,10 @@ namespace FileNameHelper.Tests
         public void ConstructorFullFilenameSet_Ok()
         {
             //Arrange
-            string path = @".\Testname.txt";
-            IFileNameHelper helper = new FileNameHelper(filepath: path);
+            string fullfilename = @"Testname.txt";
+            string directory = @".\";
+            IFileNameHelper helper = new FileNameHelper(fullfilename,directory);
+
             string expectedFilename = "Testname.txt";
 
             //Act
@@ -79,8 +81,9 @@ namespace FileNameHelper.Tests
         public void ConstructorFilenameSet_Ok()
         {
             //Arrange
-            string path = @".\Testname.txt";
-            IFileNameHelper helper = new FileNameHelper(filepath: path);
+            string fullfilename = @"Testname.txt";
+            string directory = @".\";
+            IFileNameHelper helper = new FileNameHelper(fullfilename, directory);
             string expectedFilename = "Testname";
 
             //Act
@@ -103,8 +106,10 @@ namespace FileNameHelper.Tests
             {
                 {@"c:\temp\",new MockDirectoryData()},
             });
-            string path = @"c:\temp\Testname.txt";
-            IFileNameHelper helper = new FileNameHelper(filepath: path, createMissingDirectory:false,fileSystem: mockFileSystem);
+
+            string fullfilename = @"Testname.txt";
+            string directory = @"c:\temp\";
+            IFileNameHelper helper = new FileNameHelper(fullFilename:fullfilename,directory: directory, createMissingDirectory:false,fileSystem: mockFileSystem);
 
             string expectedFilepath = @"c:\temp\Testname.txt";
 
@@ -127,8 +132,9 @@ namespace FileNameHelper.Tests
                 {@"c:\temp\",new MockDirectoryData()},
                 {@"c:\temp\Testname.txt",new MockFileData("dummy") }
             });
-            string path = @"c:\temp\Testname.txt";
-            IFileNameHelper helper = new FileNameHelper(filepath: path, createMissingDirectory: false, fileSystem: mockFileSystem,counterFormat: format);
+            string fullfilename = @"Testname.txt";
+            string directory = @"c:\temp\";
+            IFileNameHelper helper = new FileNameHelper(fullFilename: fullfilename, directory: directory, createMissingDirectory: false, fileSystem: mockFileSystem,counterFormat: format);
 
             //Act
             string actualFilepath = helper.Filepath;
@@ -149,9 +155,11 @@ namespace FileNameHelper.Tests
                 {@"c:\temp\Testname_02.txt",new MockFileData("dummy") },
                 {@"c:\temp\Testname_03.txt",new MockFileData("dummy") }
             });
-            string path = @"c:\temp\Testname.txt";
             int maxCounter = 3;
-            IFileNameHelper helper = new FileNameHelper(filepath: path,
+            string fullfilename = @"Testname.txt";
+            string directory = @"c:\temp\";
+            IFileNameHelper helper = new FileNameHelper(fullFilename: fullfilename,
+                directory: directory,
                 fileSystem: mockFileSystem,
                 counterMax: maxCounter);
 
@@ -172,9 +180,10 @@ namespace FileNameHelper.Tests
                 {@"c:\temp\Testname_02.txt",new MockFileData("dummy") },
                 {@"c:\temp\Testname_03.txt",new MockFileData("dummy") }
             });
-            string path = @"c:\temp\Testname.txt";
 
-            IFileNameHelper helper = new FileNameHelper(filepath: path,fileSystem: mockFileSystem);
+            string fullfilename = @"Testname.txt";
+            string directory = @"c:\temp\";
+            IFileNameHelper helper = new FileNameHelper(fullFilename: fullfilename, directory: directory, fileSystem: mockFileSystem);
 
             string expectedFilepath1 = @"c:\temp\Testname_04.txt";
             string expectedFilepath2 = @"c:\temp\Testname_05.txt";
