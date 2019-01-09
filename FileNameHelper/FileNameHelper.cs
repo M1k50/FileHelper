@@ -44,7 +44,8 @@ namespace FileNameHelper
         /// <param name="counterMax"></param>
         /// <param name="counterFormat"></param>
         /// <param name="fileSystem"></param>
-        public FileNameHelper(string filepath ="./output.csv",
+        public FileNameHelper(string fullFilename ="output.csv",
+            string directory ="./",
             bool createMissingDirectory = false,
             int counterMax = 1000,
             string counterFormat="D2",
@@ -54,7 +55,8 @@ namespace FileNameHelper
 
             SetCounter(createMissingDirectory, counterMax, counterFormat);
 
-            Filepath = filepath;
+            FullFilename = fullFilename;
+            Directory = directory;
 
         }
 
