@@ -101,8 +101,8 @@ namespace FileNameHelper
             }
             set
             {
-                string filename = _fileSystem.Path.GetFileNameWithoutExtension(value);
-                SetFilename(filename);
+                //string filename = _fileSystem.Path.GetFileNameWithoutExtension(value);
+                SetFilename(value);
 
                 string extension = _fileSystem.Path.GetExtension(value);
                 bool extensionFound = (extension != "");
